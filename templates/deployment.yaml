@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appname }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.appname }}
+    env: {{ .Values.ingress.cluster_name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.appname }}
+      appname: {{ .Values.namespace }}
+      common-profile: "true"
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appname }}
+        env: {{ .Values.ingress.cluster_name }}
+        appname: {{ .Values.namespace }}
+        common-profile: "true"
+    spec:
+      {{- if .Values.serviceaccount.sa }}
+      serviceAccountName: {{ .Values.namespace }}-sa
+      {{- end }}
+      containers:
+      - env:
+        - name: CLUSTER_NAME
+          value: {{ .Values.ingress.cluster_name }}
+        - name: SPRING_CLOUD_CONFIG_URI
+          value: {{ .Values.env.SPRING_CLOUD_CONFIG_URI }}
+      {{- if .Values.CANARY }}   
+        - name: SPRING_CLOUD_CONFIG_LABEL
+          value: {{ .Values.env.SPRING_CLOUD_CONFIG_LABEL }}
+      {{- end }}
+        - name: MEMORY
+          value: {{ .Values.env.MEMORY }}
+        - name: SPRING_PROFILES_ACTIVE
+          value: {{ .Values.env.SPRING_PROFILES_ACTIVE }}
+        - name: DT_TAGS
+          value: {{ .Values.env.DT_TAGS }}
+        - name: LOGBACK_NEVER_BLOCK
+          value: '{{ .Values.env.LOGBACK_NEVER_BLOCK }}'
+        - name: JAVA_OPTS
+          value: {{ .Values.env.JAVA_OPTS }}
+        - name: LOGBACK_QUEUE_SIZE
+          value: '{{ .Values.env.LOGBACK_QUEUE_SIZE }}'
+        - name: CUSTOM_JAVA_OPTS
+          value: {{ .Values.env.CUSTOM_JAVA_OPTS }}
+        - name: BINARY_URL
+          value: {{ .Values.env.BINARY_URL }}
+      {{- if .Values.env.VAULT_PATH }}
+        - name: VAULT_SYNC_FORMAT
+          value: env,properties,vcap,json
+        - name: VAULT_SYNC_ONE_TIME
+          value: 'true'
+        - name: VAULT_SYNC_SSL_VERIFY
+          value: 'false'
+        - name: VAULT_SYNC_URL
+          value: https://vault.global.dish.com
+        - name: VAULT_SYNC_PATHS
+          value: {{ .Values.env.VAULT_PATH }}
+        - name: VAULT_SYNC_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: VAULT_SYNC_TOKEN_SECRET
+              name: vault-sync-token-secret
+              optional: false
+      {{- end }}
+        name: {{ .Chart.Name }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        ports:
+        - containerPort: 8080
+      {{- if .Values.healthcheck.livenessProbe }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.healthcheck.live_path }}
+            port: 8080
+          periodSeconds: {{ .Values.healthcheck.live_periodSeconds | default 8 }}
+          initialDelaySeconds: 50
+      {{- end }}
+      
+      {{- if .Values.healthcheck.readinessProbe }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.healthcheck.readi_path }}
+            port: 8080
+          periodSeconds: {{ .Values.healthcheck.readi_periodSeconds | default 30 }}
+          initialDelaySeconds: 50
+      {{- end }}
+        resources:
+          requests:
+            memory: "2048Mi"
+            cpu: 1
+          limits:
+            memory: "4096Mi"
+            cpu: 2
