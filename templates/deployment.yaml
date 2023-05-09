@@ -58,7 +58,7 @@ spec:
         - name: VAULT_SYNC_SSL_VERIFY
           value: 'false'
         - name: VAULT_SYNC_URL
-          value: https://vault.global.dish.com
+          value: https://vault.global.broadridge.com
         - name: VAULT_SYNC_PATHS
           value: {{ .Values.env.VAULT_PATH }}
         - name: VAULT_SYNC_TOKEN_SECRET

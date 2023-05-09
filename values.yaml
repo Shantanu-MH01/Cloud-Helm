@@ -2,7 +2,7 @@ replicaCount: 1
 namespace: pe-sample-project
 appname: pe-sample-project
 image:
-  repository: docker-dev.global.dish.com/hello-world-one
+  repository: docker-dev.global.broadridge.com/hello-world-one
   tag: 0.0.1
   pullPolicy: IfNotPresent
 
@@ -16,7 +16,7 @@ healthcheck:
 
 
 env:
-  SPRING_CLOUD_CONFIG_URI: https://configserver-fargate.global.dish.com
+  SPRING_CLOUD_CONFIG_URI: https://configserver-fargate.global.broadridge.com
   SPRING_CLOUD_CONFIG_LABEL: pe-sample-project_0.0.1
   MEMORY: 2048M
   SPRING_PROFILES_ACTIVE: development,canary
@@ -25,7 +25,7 @@ env:
   JAVA_OPTS: -Dintroscope.autoprobe.directivesFile=tomcat-full.pbl,hotdeploy,spm.pbl,/home/vcap/app/wily-classes.pbd
   LOGBACK_QUEUE_SIZE: 4
   CUSTOM_JAVA_OPTS: -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions  -XX:G1NewSizePercent=25 -XX:G1MaxNewSizePercent=30 -XX:ParallelGCThreads=10 -XX:ConcGCThreads=3 -XX:InitiatingHeapOccupancyPercent=40 -XX:MaxGCPauseMillis=30
-  BINARY_URL: https://artifactory.global.dish.com/artifactory/libs-release-dev/com/dish/pe/pe-sample-project/0.0.1/pe-sample-project-0.0.1.jar
+  BINARY_URL: https://artifactory.global.broadridge.com/artifactory/libs-release-dev/com/broadridge/pe/pe-sample-project/0.0.1/pe-sample-project-0.0.1.jar
   VAULT_PATH: "" 
 
 service:
@@ -38,7 +38,7 @@ ingress:
   cluster_name: rw-pe-dev
   path: /*
   certificate_arn: arn:aws:acm:us-west-2:203446238134:certificate/2b0af4e0-a873-4426-a322-e4ff6e475b37
-  dnsname: pe-sample-project-dev.apiproc-dev.aws.dishcloud.io
+  dnsname: pe-sample-project-dev.apiproc-dev.aws.broadridgecloud.io
   security_group: sg-0014ac3db66152a6a
   ssl_policy: ELBSecurityPolicy-FS-1-2-Res-2020-10
   ssl: ""
